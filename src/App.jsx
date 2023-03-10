@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import './App.css'
 
 const STATE = {
@@ -13,8 +13,6 @@ function App() {
   });
 
   const [todos, setTodos] = useState([]);
-
-  const todoRefs = useRef([]);
 
   function handleSubmit(event) {
     event.preventDefault()
@@ -41,19 +39,22 @@ function App() {
       [event.target.name]: event.target.value
     });
 
-    console.log(todos);
-
   }
 
-  function handleToggle(index) {
-    const newTodos = [...todos];
-    const todo = newTodos[index];
-    todo.state = todo.state === STATE.TODO ? STATE.DONE : STATE.TODO;
-    setTodos(newTodos);
+  function handleToggle(name) {
+    setTodos(todos.map(item => {
+      if (item.name === name) {
+        return {
+          ...item,
+          state: item.state === STATE.TODO ? STATE.DONE : STATE.TODO
+        }
+      }
+      return item
+    }))
   }
 
-  function handleRef(el, index) {
-    todoRefs.current[index] = el;
+  function handleDelete(name) {
+    setTodos(todos.filter(item => item.name !== name))
   }
 
   return (
@@ -72,13 +73,14 @@ function App() {
           .filter(function(item) {
             return item.state === STATE.TODO;
           })
-          .map(function(item, index) {
+          .map(function(item) {
             return (
-              <li key={item.name} ref={(el) => handleRef(el, index)}>
+              <li key={item.name}>
                 {item.name}
-                <button onClick={() => handleToggle(index)}>Fait</button>
+                <button onClick={() => handleToggle(item.name)}>Fait</button>
+                <button onClick={() => handleDelete(item.name)}>X</button>
               </li>
-            );
+            )
           })
         }
       </ul>
@@ -92,7 +94,13 @@ function App() {
             return item.state === STATE.DONE;
           })
           .map(function(item) {
-            return <li key={item.name}>{item.name}</li>
+            return (
+              <li key={item.name}>
+                {item.name}
+                <button onClick={() => handleToggle(item.name)}>A faire</button>
+                <button onClick={() => handleDelete(item.name)}>X</button>
+              </li>
+            )
           })
         }
       </ul>
