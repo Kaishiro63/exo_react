@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import './App.css'
 
 const STATE = {
@@ -13,6 +13,8 @@ function App() {
   });
 
   const [todos, setTodos] = useState([]);
+
+  const todoRefs = useRef([]);
 
   function handleSubmit(event) {
     event.preventDefault()
@@ -43,6 +45,17 @@ function App() {
 
   }
 
+  function handleToggle(index) {
+    const newTodos = [...todos];
+    const todo = newTodos[index];
+    todo.state = todo.state === STATE.TODO ? STATE.DONE : STATE.TODO;
+    setTodos(newTodos);
+  }
+
+  function handleRef(el, index) {
+    todoRefs.current[index] = el;
+  }
+
   return (
     <div className="App">
 
@@ -59,10 +72,13 @@ function App() {
           .filter(function(item) {
             return item.state === STATE.TODO;
           })
-          .map(function(item) {
-            return <li key={item.name}>
-              {item.name}
+          .map(function(item, index) {
+            return (
+              <li key={item.name} ref={(el) => handleRef(el, index)}>
+                {item.name}
+                <button onClick={() => handleToggle(index)}>Fait</button>
               </li>
+            );
           })
         }
       </ul>
